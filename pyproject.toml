@@ -23,6 +23,7 @@ components = [
 # Other pip packages to install, such as vendor packages (each element
 # is equivalent to a line in requirements.txt)
 requires = [
-    "phoenix6"
-    "robotpy-ctre"
-]
+    "phoenix6",
+    "robotpy-ctre",
+    "photonlibpy",
+    ]

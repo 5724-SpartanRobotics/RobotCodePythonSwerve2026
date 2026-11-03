@@ -1,3 +1,6 @@
 encoders need to be ctre cancoders
 motors need to be ctre talon fx (the true motor is a falcon 500)
 gyro needs to be a ctre pigeon 2 
+
+we need vision we use photon vision for it installed on 3 differnt limelights 
+docs for that here: https://docs.photonvision.org/en/latest/docs/examples/poseest.html
