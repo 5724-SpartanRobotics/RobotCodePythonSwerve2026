@@ -1,0 +1,3 @@
+encoders need to be ctre cancoders
+motors need to be ctre talon fx (the true motor is a falcon 500)
+gyro needs to be a ctre pigeon 2 
