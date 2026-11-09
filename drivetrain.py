@@ -9,6 +9,8 @@ import wpilib
 import wpimath.geometry
 import wpimath.kinematics
 import swervemodule
+from phoenix6.hardware import Pigeon2
+import pigeon2swerve
 
 kMaxSpeed = 3.0  # 3 meters per second
 kMaxAngularSpeed = math.pi  # 1/2 rotation per second
@@ -30,7 +32,7 @@ class Drivetrain:
         self.backLeft = swervemodule.SwerveModule(5, 6, 8, 9, 10, 11)
         self.backRight = swervemodule.SwerveModule(7, 8, 12, 13, 14, 15)
 
-        self.gyro = wpilib.AnalogGyro(0)
+        self.gyro = Pigeon2(0)
 
         self.kinematics = wpimath.kinematics.SwerveDrive4Kinematics(
             self.frontLeftLocation,
