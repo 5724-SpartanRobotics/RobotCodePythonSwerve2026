@@ -10,7 +10,7 @@ import wpimath.geometry
 import wpimath.kinematics
 import swervemodule
 from phoenix6.hardware import Pigeon2
-import pigeon2swerve
+import constant
 
 kMaxSpeed = 3.0  # 3 meters per second
 kMaxAngularSpeed = math.pi  # 1/2 rotation per second
