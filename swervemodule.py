@@ -11,7 +11,7 @@ import wpimath.controller
 import wpimath.geometry
 import wpimath.kinematics
 import wpimath.trajectory
-from drivetrain import Drivetrain
+import DriveTrainSubsystem
 import phoenix6.hardware
 from phoenix6.controls import PositionVoltage
 import phoenix6.configs
@@ -34,7 +34,7 @@ class SwerveModule:
         canCoderID: int,
         offSet: float,
         name: str,
-        driveTrain: Drivetrain
+        DriveTrain: DriveTrain
     ) -> None:
         """Constructs a SwerveModule with a drive motor, turning motor, drive encoder and turning encoder.
 

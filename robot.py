@@ -10,14 +10,14 @@ import wpimath
 import wpilib.drive
 import wpimath.filter
 import wpimath.controller
-import drivetrain
+import DriveTrainSubsystem
 
 
 class MyRobot(wpilib.TimedRobot):
     def robotInit(self) -> None:
         """Robot initialization function"""
         self.controller = wpilib.XboxController(0)
-        self.swerve = drivetrain.Drivetrain()
+        self.swerve = DriveTrainSubsystem.DriveTrain()
 
         # Slew rate limiters to make joystick inputs more gentle; 1/3 sec from 0 to 1.
         self.xspeedLimiter = wpimath.filter.SlewRateLimiter(3)
@@ -38,7 +38,7 @@ class MyRobot(wpilib.TimedRobot):
             -self.xspeedLimiter.calculate(
                 wpimath.applyDeadband(self.controller.getLeftY(), 0.02)
             )
-            * drivetrain.kMaxSpeed
+            * DriveTrainSubsystem.kMaxSpeed
         )
 
         # Get the y speed or sideways/strafe speed. We are inverting this because
@@ -48,7 +48,7 @@ class MyRobot(wpilib.TimedRobot):
             -self.yspeedLimiter.calculate(
                 wpimath.applyDeadband(self.controller.getLeftX(), 0.02)
             )
-            * drivetrain.kMaxSpeed
+            * DriveTrainSubsystem.kMaxSpeed
         )
 
         # Get the rate of angular rotation. We are inverting this because we want a
@@ -59,7 +59,7 @@ class MyRobot(wpilib.TimedRobot):
             -self.rotLimiter.calculate(
                 wpimath.applyDeadband(self.controller.getRightX(), 0.02)
             )
-            * drivetrain.kMaxSpeed
+            * DriveTrainSubsystem.kMaxSpeed
         )
 
         self.swerve.drive(xSpeed, ySpeed, rot, fieldRelative, self.getPeriod())
