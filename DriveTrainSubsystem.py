@@ -6,40 +6,41 @@
 
 import math
 import wpilib
-import wpimath.geometry
 import wpimath.kinematics
 import swervemodule
 from phoenix6.hardware import Pigeon2
 import constants
+import commands2
+import wpimath.geometry
 
 kMaxSpeed = 3.0  # 3 meters per second
 kMaxAngularSpeed = math.pi  # 1/2 rotation per second
 
 
-class DriveTrain:
+class DriveTrain(commands2.Subsystem):
     """
     Represents a swerve drive style drivetrain.
     """
 
-    def __init__(self) -> None:
-        self.frontLeftLocation = wpimath.geometry.Translation2d(0.381, 0.381)
-        self.frontRightLocation = wpimath.geometry.Translation2d(0.381, -0.381)
-        self.backLeftLocation = wpimath.geometry.Translation2d(-0.381, 0.381)
-        self.backRightLocation = wpimath.geometry.Translation2d(-0.381, -0.381)
+    def __init__(self):
+        super().__init__()
+        self.lastUpdatedGyroHeading = 0.0
 
-        self.frontLeft = swervemodule.SwerveModule(1, 2, 0, 1, 2, 3)
-        self.frontRight = swervemodule.SwerveModule(3, 4, 4, 5, 6, 7)
-        self.backLeft = swervemodule.SwerveModule(5, 6, 8, 9, 10, 11)
-        self.backRight = swervemodule.SwerveModule(7, 8, 12, 13, 14, 15)
-
-        self.gyro = Pigeon2(0)
+        self.gyro = Pigeon2(constants.CanIdConstants.PigeonID)
+        self.UpdateGyro()
+        self.LF = swervemodule.SwerveModule(constants.CanIdConstants.LFTurnMotor,constants.CanIdConstants.LFDriveMotor,constants.CanIdConstants.LFCanID,constants.DriveConstants.LFOff,"LF",self)
+        self.RF = swervemodule.SwerveModule(constants.CanIdConstants.RFTurnMotor,constants.CanIdConstants.RFDriveMotor,constants.CanIdConstants.RFCanID,constants.DriveConstants.RFOff,"RF",self)
+        self.LB = swervemodule.SwerveModule(constants.CanIdConstants.LBTurnMotor,constants.CanIdConstants.LBDriveMotor,constants.CanIdConstants.LBCanID,constants.DriveConstants.LBOff,"LB",self)
+        self.RB = swervemodule.SwerveModule(constants.CanIdConstants.RBTurnMotor,constants.CanIdConstants.RBDriveMotor,constants.CanIdConstants.RBCanID,constants.DriveConstants.RBOff,"RB",self)
 
         self.kinematics = wpimath.kinematics.SwerveDrive4Kinematics(
-            self.frontLeftLocation,
-            self.frontRightLocation,
-            self.backLeftLocation,
-            self.backRightLocation,
+            constants.DriveConstants.LFLocation,
+            constants.DriveConstants.RFLocation,
+            constants.DriveConstants.LBLocation,
+            constants.DriveConstants.RBLocation
         )
+
+        self.robotPose = wpimath.geometry.Pose2d(wpimath.geometry.Translation2d(4.0,5.0),wpimath.geometry.Rotation2d())
 
         self.odometry = wpimath.kinematics.SwerveDrive4Odometry(
             self.kinematics,
@@ -54,6 +55,9 @@ class DriveTrain:
 
         self.gyro.reset()
 
+    def UpdateGyro(self):
+        self.lastUpdatedGyroHeading = wpimath.geometry.Rotation2d.fromDegrees(-self.gyro.get_yaw().value_as_double)
+    
     def drive(
         self,
         xSpeed: float,

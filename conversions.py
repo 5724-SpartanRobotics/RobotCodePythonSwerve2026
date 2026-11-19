@@ -4,18 +4,22 @@ from constants import *
 
 class Conversions:
     
-    def radiansToFalcon(self,radians):
+    @staticmethod
+    def radiansToFalcon(radians):
         return radians / (TwoPI / (DriveConstants.turnGearRatio * 1.0))
     
-    def falconToRPM(self,velocitycounts):
+    @staticmethod
+    def falconToRPM(velocitycounts):
         motorRPM = velocitycounts * (600.0/1.0)
         wheelRPM = motorRPM / DriveConstants.driveGearRatio
         return wheelRPM
     
-    def falconToMPS(self,velocitycounts):
-        wheelRPM = self.falconToRPM(velocitycounts)
-        wheelMPS = (wheelRPM * DriveConstants.wheelCircumfrence()) / 60
+    @staticmethod
+    def falconToMPS(velocitycounts):
+        wheelRPM = Conversions.falconToRPM(velocitycounts)
+        wheelMPS = (wheelRPM * DriveConstants.wheelCircumference()) / 60
         return wheelMPS
     
+    @staticmethod
     def falconToDegrees(counts):
         return counts * (360.0 / (DriveConstants.turnGearRatio() * 1.0))
