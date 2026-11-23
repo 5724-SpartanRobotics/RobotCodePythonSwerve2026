@@ -19,6 +19,8 @@ import phoenix6.signals
 import conversions
 from wpimath.geometry import Rotation2d
 from wpimath.kinematics import SwerveModuleState
+import CTREModuleState
+import constants
 
 kWheelRadius = 0.0508
 kEncoderResolution = 4096
@@ -45,6 +47,8 @@ class SwerveModule:
         :param turningEncoderChannelA: DIO input for the turning encoder channel A
         :param turningEncoderChannelB: DIO input for the turning encoder channel B
         """
+        self.driveAngle = 0
+        self.driveSpeed = 0
         self.turnMotorOffset = offSet
         self.driveMotor = phoenix6.hardware.TalonFX(driveMotorID)
         self.turningMotor = phoenix6.hardware.TalonFX(turningMotorID)
@@ -78,6 +82,55 @@ class SwerveModule:
         self.turningMotor.set_position(-absPosition)
 
     def getState(self):
-        velocity = conversions.Conversions.falconToMPS(self.driveMotor.get_velocity().value_as_double())
-        angle = Rotation2d.fromDegrees(conversions.Conversions.falconToDegrees(-self.turningMotor.get_position().value_as_double()))
+        velocity = conversions.Conversions.falconToMPS(self.driveMotor.get_velocity().value_as_double)
+        angle = Rotation2d.fromDegrees(conversions.Conversions.falconToDegrees(-self.turningMotor.get_position().value_as_double))
         return SwerveModuleState(velocity, angle)
+    
+    def getPosition(self):
+        position = conversions.Conversions.falconToMeters(self.driveMotor.get_position().value_as_double)
+        angle = Rotation2d.fromDegrees(conversions.Conversions.falconToDegrees(-self.turningMotor.get_position().value_as_double))
+        return wpimath.kinematics.SwerveModulePosition(position,angle)
+    
+    def setDesiredState(
+        self, desiredState: wpimath.kinematics.SwerveModuleState
+    ) -> None:
+        """Sets the desired state for the module.
+
+        :param desiredState: Desired state with speed and angle.
+        """
+
+        # Optimize the reference state to avoid spinning further than 90 degrees
+        optimizeDesiredState = CTREModuleState.CTREModuleState.optimize(desiredState,self.getState().angle)
+        driveSpeed = desiredState.speed / constants.DriveConstants.maxRobotSpeedmps
+        self.driveMotor.set(driveSpeed)
+
+        if abs(desiredState.speed) <= constants.DriveConstants.maxRobotSpeedmps * 0.01:
+            angle = self.driveAngle
+        else:
+            angle = desiredState.angle.radians()
+
+        self.turningMotor.set_control(self.turnVoltagePosition.with_position(-conversions.Conversions.radiansToFalcon(angle)))
+        self.driveAngle = angle
+
+        # Scale speed by cosine of angle error. This scales down movement perpendicular to the desired
+        # direction of travel that can occur when modules change directions. This results in smoother
+        # driving.
+
+        # Calculate the drive output from the drive PID controller.
+        driveOutput = self.drivePIDController.calculate(
+            self.driveEncoder.getRate(), desiredState.speed
+        )
+
+        driveFeedforward = self.driveFeedforward.calculate(desiredState.speed)
+
+        # Calculate the turning motor output from the turning PID controller.
+        turnOutput = self.turningPIDController.calculate(
+            self.turningEncoder.getDistance(), desiredState.angle.radians()
+        )
+
+        turnFeedforward = self.turnFeedforward.calculate(
+            self.turningPIDController.getSetpoint().velocity
+        )
+
+        self.driveMotor.setVoltage(driveOutput + driveFeedforward)
+        self.turningMotor.setVoltage(turnOutput + turnFeedforward)

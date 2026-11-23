@@ -17,9 +17,20 @@ class Conversions:
     @staticmethod
     def falconToMPS(velocitycounts):
         wheelRPM = Conversions.falconToRPM(velocitycounts)
-        wheelMPS = (wheelRPM * DriveConstants.wheelCircumference()) / 60
+        wheelMPS = (wheelRPM * DriveConstants.wheelCircumference) / 60
         return wheelMPS
     
     @staticmethod
     def falconToDegrees(counts):
-        return counts * (360.0 / (DriveConstants.turnGearRatio() * 1.0))
+        return counts * (360.0 / (DriveConstants.turnGearRatio * 1.0))
+    
+    @staticmethod
+    def falconToMeters(position_counts: float) -> float:
+        """
+        Converts motor rotations to wheel travel distance in meters.
+        """
+        return (
+            position_counts
+            / DriveConstants.driveGearRatio
+            * DriveConstants.wheelCircumference
+        )

@@ -46,10 +46,10 @@ class DriveTrain(commands2.Subsystem):
             self.kinematics,
             self.gyro.getRotation2d(),
             (
-                self.frontLeft.getPosition(),
-                self.frontRight.getPosition(),
-                self.backLeft.getPosition(),
-                self.backRight.getPosition(),
+                self.LF.getPosition(),
+                self.RF.getPosition(),
+                self.LB.getPosition(),
+                self.RB.getPosition(),
             ),
         )
 
@@ -89,19 +89,19 @@ class DriveTrain(commands2.Subsystem):
         wpimath.kinematics.SwerveDrive4Kinematics.desaturateWheelSpeeds(
             swerveModuleStates, kMaxSpeed
         )
-        self.frontLeft.setDesiredState(swerveModuleStates[0])
-        self.frontRight.setDesiredState(swerveModuleStates[1])
-        self.backLeft.setDesiredState(swerveModuleStates[2])
-        self.backRight.setDesiredState(swerveModuleStates[3])
+        self.LF.setDesiredState(swerveModuleStates[0])
+        self.RF.setDesiredState(swerveModuleStates[1])
+        self.LB.setDesiredState(swerveModuleStates[2])
+        self.RB.setDesiredState(swerveModuleStates[3])
 
     def updateOdometry(self) -> None:
         """Updates the field relative position of the robot."""
         self.odometry.update(
             self.gyro.getRotation2d(),
             (
-                self.frontLeft.getPosition(),
-                self.frontRight.getPosition(),
-                self.backLeft.getPosition(),
-                self.backRight.getPosition(),
+                self.LF.getPosition(),
+                self.RF.getPosition(),
+                self.LB.getPosition(),
+                self.RB.getPosition(),
             ),
         )
